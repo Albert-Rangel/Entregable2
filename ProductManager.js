@@ -137,7 +137,7 @@ class ProductManager {
   }
 
   /*Debe tener un metodo updateProduct que recibira un id del producto a actualizar y el campo a actualizar*/
-  async updateProduct(id, ...product) {
+  async updateProduct(id, product) {
     try {
 
       if (typeof id !== "number") {
@@ -157,17 +157,20 @@ class ProductManager {
       if (objectProduct == undefined) {
         return console.log(`El id ${id} no existe en nuestros registros.`);
       } else {
+        
+        //Reasigno unicamente las keys de las key que se encuentren pasadas en mi objet
+        for (const [key, value] of Object.entries(product)) {
+          objectProduct[key] = value;
+        }
+        
         /*Elimino el producto con ese id */
         await this.deleteProduct(id)
 
         /*Leo nuevamente el archivo, este va a estar sin el producto especificado*/
         const arrayProducts2 = await this.readProducts();
 
-        /*Creo un nuevo objeto y le asigno el id que pasaron sumado 1 */
-        const object2 = await Object.assign({ 'id': id }, ...product)
-
         //A los objetos previos le agrego el objeto con el mismo id pero modificando los demas valores
-        arrayProducts2.push(object2)
+        arrayProducts2.push(objectProduct)
 
         //Escribo el nuevo txt
         await fs.promises.writeFile(
